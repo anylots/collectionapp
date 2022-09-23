@@ -1,0 +1,11 @@
+[package]
+name = 'dynamicPayment'
+version = '1.0.0'
+
+[addresses]
+DynamicPayment = "0xacb32d839d29b0970a24abdbbe37a1c3277d80f13826a6d8cbda77bff3463ac0"
+
+[dependencies.AptosFramework]
+git = 'https://github.com/aptos-labs/aptos-core.git'
+rev = 'main'
+subdir = 'aptos-move/framework/aptos-framework'
