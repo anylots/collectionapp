@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "appcolla": "ts-node ./scripts/appcolla.ts"
+    "appcolla": "ts-node ./scripts/appcolla.ts",
+    "dynamicPayment": "ts-node ./scripts/dynamicPayment.ts"
   },
   "dependencies": {
     "aptos": "^1.3.14",

@@ -46,11 +46,24 @@ class CollectionClient extends AptosClient {
   }
 
   /** Mints the newly created coin to a specified receiver address */
-  async setMesage(signer: AptosAccount, funcAddress: HexString, msg: String): Promise<string> {
+  async set_payment_address(signer: AptosAccount, funcAddress: HexString, payment_address: HexString): Promise<string> {
     const rawTxn = await this.generateTransaction(signer.address(), {
-      function: `${funcAddress}::appcolla::write`,
+      function: `${funcAddress}::paymentChannel::set_payment_address`,
       type_arguments: [],
-      arguments: [msg],
+      arguments: ["testPay", payment_address],
+    });
+
+    const bcsTxn = await this.signTransaction(signer, rawTxn);
+    const pendingTxn = await this.submitTransaction(bcsTxn);
+    console.log(pendingTxn);
+    return pendingTxn.hash;
+  }
+
+  async payment(signer: AptosAccount, funcAddress: HexString, paymentChannel: HexString, amount: number): Promise<string> {
+    const rawTxn = await this.generateTransaction(signer.address(), {
+      function: `${funcAddress}::paymentChannel::payment`,
+      type_arguments: ["0x1::aptos_coin::AptosCoin"],
+      arguments: [paymentChannel, amount],
     });
 
     const bcsTxn = await this.signTransaction(signer, rawTxn);
@@ -107,15 +120,16 @@ class CollectionClient extends AptosClient {
 
   async publishModule(modulePath: string, singer: AptosAccount) {
 
-    const packageMetadata = fs.readFileSync(path.join(modulePath, "build", "collection", "package-metadata.bcs"));
-    const moduleData = fs.readFileSync(path.join(modulePath, "build", "collection", "bytecode_modules", "appcolla.mv"));
+    const packageMetadata = fs.readFileSync(path.join(modulePath, "build", "dynamicPayment", "package-metadata.bcs"));
+    const moduleData = fs.readFileSync(path.join(modulePath, "build", "dynamicPayment", "bytecode_modules", "paymentChannel.mv"));
 
-    console.log("Publishing Collection package.");
+    console.log("Publishing dynamicPayment package.");
     let txnHash = await this.publishPackage(singer, new HexString(packageMetadata.toString("hex")).toUint8Array(), [
       new TxnBuilderTypes.Module(new HexString(moduleData.toString("hex")).toUint8Array()),
     ]);
     await this.waitForTransaction(txnHash, { checkSuccess: true }); // <:!:publish
     console.log("publishPackage txnHash:" + txnHash);
+    return txnHash;
   }
 }
 
@@ -140,11 +154,18 @@ async function main() {
   // publish
   console.log('readFileSync........');
   const modulePath = process.argv[2];
-  // await collectionClient.publishModule(modulePath, alice);
+  // let txnHash = await collectionClient.publishModule(modulePath, alice);
 
-  // let txnHash = await collectionClient.setMesage(bob, alice.address(), "apple3");
+  // let txnHash = await collectionClient.set_payment_address(alice, alice.address(), bob.address());
+
+  //0x5758138fa408e00258b2d86a03799ffdcc6d48830055a767476619b6305d45b5
+  let paymaster_privateKey="0x052dd422fcb296079130220c7b7909fdef38c7dfeea914df5d94dddfc3cae04e";
+  const paymaster = new AptosAccount(new HexString(paymaster_privateKey).toUint8Array());
+
+  let txnHash = await collectionClient.payment(paymaster, alice.address(), alice.address(), 10000);
+
   // let txnHash = await collectionClient.getMesage(alice, alice.address());
-  let txnHash = await collectionClient.getResourceMsg(bob.address(), alice.address());
+  // let txnHash = await collectionClient.getResourceMsg(bob.address(), alice.address());
   console.log(txnHash);
 }
 

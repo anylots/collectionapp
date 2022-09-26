@@ -4,6 +4,10 @@ collection/build
 
 /collection/build
 
+dynamicPayment/build
+/dynamicPayment/build
+
+
 # dependencies
 /node_modules
 

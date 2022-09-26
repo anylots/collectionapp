@@ -1,3 +1,8 @@
 aptos account fund-with-faucet --account  0x5758138fa408e00258b2d86a03799ffdcc6d48830055a767476619b6305d45b5 --amount 1000000000000
 
 aptos move compile --named-addresses collection=0xacb32d839d29b0970a24abdbbe37a1c3277d80f13826a6d8cbda77bff3463ac0 --save-metadata
+
+
+
+aptos move compile --named-addresses dynamicPayment=0xacb32d839d29b0970a24abdbbe37a1c3277d80f13826a6d8cbda77bff3463ac0 --save-metadata
+yarn dynamicPayment .\dynamicPayment\
